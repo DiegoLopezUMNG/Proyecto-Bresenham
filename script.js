@@ -55,3 +55,21 @@ function bresenham(x0, y0, x1, y1) {
     const adjX   = e2 > -dy; // Condición para ajustar X
     const adjY   = e2 < dx;  // Condición para ajustar Y
      const isLast = (x0 === x1 && y0 === y1); // Verificar si se ha llegado al punto final
+     // Registrar solo los campos necesarios para la tabla
+     steps.push({ step: stepNum++, x: x0, y: y0, err, adjX, adjY, sx, sy, isLast });
+     // Activar el píxel actual
+     points.push({ x: x0, y: y0 });
+     // Condición de parada: llegamos al punto final
+    if (isLast) break;
+     // Ajustar el error y las coordenadas según las condiciones
+    if (adjX) {
+      err -= dy; // Reducir el error por el avance en X
+      x0 += sx;  // Mover en X según la dirección
+    }
+    if (adjY) {
+      err += dx; // Aumentar el error por el avance en Y
+      y0 += sy;  // Mover en Y según la dirección
+    }
+  }
+   return { points, steps };
+}

@@ -73,3 +73,36 @@ function bresenham(x0, y0, x1, y1) {
   }
    return { points, steps };
 }
+/* ============================================================
+   DIBUJO DEL CANVAS
+   Renderiza la cuadrícula con ejes numerados y los píxeles
+   activados por el algoritmo de Bresenham.
+   @param {Array<{x,y}>} points - Píxeles a resaltar.
+   @param {number} x0 - Coordenada X del punto inicial (para marcarlo).
+   @param {number} y0 - Coordenada Y del punto inicial.
+   @param {number} x1 - Coordenada X del punto final.
+   @param {number} y1 - Coordenada Y del punto final.
+   ============================================================ */
+function drawCanvas(points, x0, y0, x1, y1) {
+  const canvas = document.getElementById('grid');
+  const ctx    = canvas.getContext('2d');
+// Calcular el rango visible con margen
+  const minX = Math.min(x0, x1) - MARGIN;
+  const maxX = Math.max(x0, x1) + MARGIN;
+  const minY = Math.min(y0, y1) - MARGIN;
+  const maxY = Math.max(y0, y1) + MARGIN;
+  
+  const cols = maxX - minX + 1; // Número de columnas visibles
+  const rows = maxY - minY + 1; // Número de filas visibles
+  // Ajustar el tamaño del canvas según el rango visible
+  // Dimensiones del canvas en píxeles
+  const W = cols * CELL;
+  const H = rows * CELL;
+  canvas.width  = W;
+  canvas.height = H; 
+  
+ //actializar variables CSS del wrapper para posicionar los ejes
+  const wrapper = document.getElementById('canvas-wrapper');
+  wrapper.style.setProperty('--min-x', minX); // Para posicionar los ejes en el lugar correcto
+  wrapper.style.setProperty('--min-y', minY); // Para posicionar los ejes en el lugar correcto
+  wrapper.style.setProperty('--cell-size', `${CELL}px`); 

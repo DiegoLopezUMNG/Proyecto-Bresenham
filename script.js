@@ -24,3 +24,21 @@ function run() {
   // Poblar la tabla de pasos
   buildTable(steps);
 }
+/* ============================================================
+   ALGORITMO DE BRESENHAM
+   Implementación del algoritmo de trazado de línea de Bresenham.
+   @param {number} x0 - Coordenada X inicial.
+   @param {number} y0 - Coordenada Y inicial.
+   @param {number} x1 - Coordenada X final.
+   @param {number} y1 - Coordenada Y final.
+   @returns {{ points: Array<{x,y}>, steps: Array<Object> }}
+            points → lista de píxeles trazados.
+            steps  → lista de objetos con el estado interno en cada iteración.
+   ============================================================ */
+function bresenham(x0, y0, x1, y1) {
+  // Diferenciales absolutos de cada eje
+  let dx = Math.abs(x1 - x0);
+  let dy = Math.abs(y1 - y0);
+    // Determinar la dirección de incremento para cada eje
+  let sx = (x0 < x1) ? 1 : -1;
+  let sy = (y0 < y1) ? 1 : -1;

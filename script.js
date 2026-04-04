@@ -40,5 +40,18 @@ function bresenham(x0, y0, x1, y1) {
   let dx = Math.abs(x1 - x0);
   let dy = Math.abs(y1 - y0);
     // Determinar la dirección de incremento para cada eje
+    // Dirección del paso: +1 o -1 según el sentido de la línea
   let sx = (x0 < x1) ? 1 : -1;
   let sy = (y0 < y1) ? 1 : -1;
+  // Error inicial: diferencia entre el avance en X y el avance en Y
+  let err = dx - dy;
+
+  const points = []; // Píxeles activados
+  const steps  = []; // Registro para la tabla
+  let stepNum  = 0; // Contador de pasos
+
+  while (true) {
+    const e2     = 2 * err; // Doble del error para comparación
+    const adjX   = e2 > -dy; // Condición para ajustar X
+    const adjY   = e2 < dx;  // Condición para ajustar Y
+     const isLast = (x0 === x1 && y0 === y1); // Verificar si se ha llegado al punto final

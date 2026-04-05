@@ -156,3 +156,28 @@ function drawCanvas(points, x0, y0, x1, y1) {
   // ── Marcar punto final (círculo naranja) ──
   markPoint(ctx, toCanvasX(x1), toCanvasY(y1), '#f0883e', 'P1');
 }
+/* ============================================================
+   MARCAR UN PUNTO ESPECIAL EN EL CANVAS
+   Dibuja un pequeño círculo y etiqueta sobre una celda.
+   @param {CanvasRenderingContext2D} ctx - Contexto del canvas.
+   @param {number} cx    - Coordenada X canvas (esquina superior-izquierda de celda).
+   @param {number} cy    - Coordenada Y canvas (esquina superior-izquierda de celda).
+   @param {string} color - Color del marcador.
+   @param {string} label - Texto de la etiqueta (ej. "P0", "P1").
+   ============================================================ */
+function markPoint(ctx, cx, cy, color, label) { // cx, cy son las coordenadas de la esquina superior-izquierda de la celda
+  const r  = CELL * 0.18;
+  const px = cx + CELL / 2; // Coordenada X del centro de la celda
+  const py = cy + CELL / 2; // Coordenada Y del centro de la celda
+
+  // Dibujar el círculo
+  ctx.beginPath();
+  ctx.arc(px, py, r, 0, Math.PI * 2); // Círculo centrado en la celda
+  ctx.fillStyle = color;
+  ctx.fill() 
+// Dibujar la etiqueta centrada sobre el círculo
+  ctx.fillStyle = '#000'; // Color del texto de la etiqueta
+  ctx.font = `bold ${Math.max(8, CELL * 0.18)}px 'Barlow', sans-serif`; // Fuente y tamaño proporcional al tamaño de la celda
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(label, px, py); // Centrar el texto sobre el círculo

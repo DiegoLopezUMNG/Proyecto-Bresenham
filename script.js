@@ -137,4 +137,22 @@ function drawCanvas(points, x0, y0, x1, y1) {
     const cx = toCanvasX(x); // Convertir coordenada lógica X a píxel
     const cy = toCanvasY(y); // Convertir coordenada lógica Y a píxel
     
+// Relleno del píxel activo
+    ctx.fillStyle = 'rgba(88,166,255,0.25)'; // Color de fondo del píxel
+    ctx.fillRect(cx + 1, cy + 1, CELL - 2, CELL - 2); // Rellenar con un margen para mostrar la cuadrícula
+      // Borde del píxel activo
+    ctx.strokeStyle = '#58a6ff'; // Color del borde del píxel
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(cx + 1, cy + 1, CELL - 2, CELL - 2); // Dibujar borde con un margen para mostrar la cuadrícula
+// Coordenadas dentro de la celda
+    ctx.fillStyle = '#58a6ff'; // Color del texto de coordenadas
+    ctx.font = `bold ${Math.max(9, CELL * 0.22)}px 'Share Tech Mono', monospace`; // Fuente monoespaciada y tamaño proporcional al tamaño de la celda 
+    ctx.textBaseline = 'middle';
+    ctx.fillText(`${x},${y}`, cx + CELL / 2, cy + CELL / 2); // Centrar el texto dentro de la celda
+  });
+    // ── Marcar punto inicial (círculo verde) ──
+  markPoint(ctx, toCanvasX(x0), toCanvasY(y0), '#3fb950', 'P0');
 
+  // ── Marcar punto final (círculo naranja) ──
+  markPoint(ctx, toCanvasX(x1), toCanvasY(y1), '#f0883e', 'P1');
+}

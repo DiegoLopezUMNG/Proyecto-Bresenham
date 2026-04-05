@@ -105,4 +105,36 @@ function drawCanvas(points, x0, y0, x1, y1) {
   const wrapper = document.getElementById('canvas-wrapper');
   wrapper.style.setProperty('--min-x', minX); // Para posicionar los ejes en el lugar correcto
   wrapper.style.setProperty('--min-y', minY); // Para posicionar los ejes en el lugar correcto
-  wrapper.style.setProperty('--cell-size', `${CELL}px`); 
+  // Renderizar ejes numéricos en los divs laterales
+  buildAxisLabels(minX, maxX, minY, maxY, cols, rows);
+
+   // ── Fondo ──
+  ctx.fillStyle = getComputedStyle(document.documentElement)
+                   .getPropertyValue('--surface').trim();
+  ctx.fillRect(0, 0, W, H);
+// ── Cuadrícula ──
+  ctx.strokeStyle = 'rgba(48,54,61,0.6)';
+  ctx.lineWidth = 1;
+  for (let c = 0; c <= cols; c++) {
+    ctx.beginPath();
+    ctx.moveTo(c * CELL, 0);
+    ctx.lineTo(c * CELL, H);
+    ctx.stroke();
+  }
+  for (let r = 0; r <= rows; r++) {
+    ctx.beginPath();
+    ctx.moveTo(0, r * CELL);
+    ctx.lineTo(W, r * CELL);
+    ctx.stroke();
+  }
+// ── Píxeles de Bresenham ──
+  // Convertir coordenada lógica a píxel en el canvas.
+  // El eje Y está invertido: fila 0 del canvas = maxY lógico.
+  const toCanvasX = lx => (lx - minX) * CELL;
+  const toCanvasY = ly => (maxY - ly) * CELL;
+
+  points.forEach(({ x, y }) => {
+    const cx = toCanvasX(x); // Convertir coordenada lógica X a píxel
+    const cy = toCanvasY(y); // Convertir coordenada lógica Y a píxel
+    
+

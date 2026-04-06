@@ -230,3 +230,17 @@ function buildAxisLabels(minX, maxX, minY, maxY, cols, rows) {
     axisX.appendChild(span); // Agregar el span al contenedor del eje X
   }
 }
+
+/* ============================================================
+   CONSTRUIR TABLA DE PASOS
+   Genera las filas de la tabla con una vista simplificada:
+   paso, coordenadas actuales, error acumulado y observación
+   sobre qué ajustes se realizaron en esa iteración.
+   @param {Array<Object>} steps - Registros de bresenham().
+          Cada objeto: { step, x, y, err, adjX, adjY, sx, sy, isLast }
+   ============================================================ */
+function buildTable(steps) {
+  const tbody = document.getElementById('stepBody');
+  tbody.innerHTML = '';
+  steps.forEach(s => {
+    const tr = document.createElement('tr');

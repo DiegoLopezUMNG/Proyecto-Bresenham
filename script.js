@@ -257,3 +257,17 @@ function buildTable(steps) {
       if (s.adjY) moves.push(`y${s.sy > 0 ? '+' : ''}${s.sy}`); // Indicar ajuste en Y con dirección
       if (moves.length) obs += ` → ${moves.join(', ')}`; // Agregar ajustes a la observación
     }
+
+        tr.innerHTML = `
+      <td>${s.step}</td>
+      <td>${s.x}</td>
+      <td>${s.y}</td>
+      <td class="err-cell">${s.err}</td>
+      <td class="plot-cell">${obs}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+/* ── Ejecutar al cargar la página con los valores por defecto ── */
+run();

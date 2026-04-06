@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Algoritmo de Bresenham</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@400;600;700&display=swap');
+
+// Paleta de colores 
+    :root {
+      --bg:        #0d1117;
+      --surface:   #161b22;
+      --border:    #30363d;
+      --accent:    #58a6ff;
+      --accent2:   #3fb950;
+      --text:      #e6edf3;
+      --muted:     #8b949e;
+      --pixel:     #58a6ff;
+      --grid:      rgba(48,54,61,0.6);
+      --axis:      #444c56;
+      --tick-lbl:  #8b949e;
+    }
+
+    // Reset CSS
+     * { box-sizing: border-box; margin: 0; padding: 0; } // Estilos globales
+
+    body {
+      background: var(--bg); // Fondo oscuro
+      color: var(--text); // Texto claro
+      font-family: 'Barlow', sans-serif; // Fuente principal
+      min-height: 100vh; // Asegura que el cuerpo ocupe toda la altura de la ventana
+      display: flex;  // Usamos flexbox para centrar el contenido
+      flex-direction: column; // Dirección de los elementos en columna
+      align-items: center; // Centra horizontalmente
+      padding: 32px 16px 48px; // Espaciado alrededor del contenido
+      gap: 28px; // Espacio entre los elementos
+    }

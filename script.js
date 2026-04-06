@@ -181,3 +181,52 @@ function markPoint(ctx, cx, cy, color, label) { // cx, cy son las coordenadas de
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(label, px, py); // Centrar el texto sobre el círculo
+
+  /* ============================================================
+   CONSTRUIR ETIQUETAS DE EJES
+   Rellena los divs #axisY y #axisX con los valores numéricos
+   correspondientes a cada fila/columna de la cuadrícula.
+   Solo se muestra un número cada TICK_EVERY celdas para no saturar.
+   @param {number} minX  - Valor lógico mínimo en X.
+   @param {number} maxX  - Valor lógico máximo en X.
+   @param {number} minY  - Valor lógico mínimo en Y.
+   @param {number} maxY  - Valor lógico máximo en Y.
+   @param {number} cols  - Número de columnas en el canvas.
+   @param {number} rows  - Número de filas en el canvas.
+   ============================================================ */
+
+function buildAxisLabels(minX, maxX, minY, maxY, cols, rows) {
+  const axisY = document.getElementById('axisY'); // Obtener referencia a los contenedores de etiquetas de los ejes
+  const axisX = document.getElementById('axisX'); 
+
+  // Ajustar dimensiones dinámicamente según el tamaño del canvas
+  axisY.style.height = (rows * CELL) + 'px';
+  axisX.style.width  = (cols * CELL) + 'px';
+
+// ── Eje Y: valores de minY (abajo) a maxY (arriba) ──
+  axisY.innerHTML = '';
+  for (let ly = minY; ly <= maxY; ly++) {
+    const span = document.createElement('span');
+    span.style.height         = CELL + 'px';
+    span.style.lineHeight     = CELL + 'px';
+    span.style.display        = 'flex';
+    span.style.alignItems     = 'center';
+    span.style.justifyContent = 'flex-end';
+    // Mostrar número solo si es múltiplo de TICK_EVERY o el extremo
+    if ((ly - minY) % TICK_EVERY === 0 || ly === maxY) {
+      span.textContent = ly;
+    }
+    axisY.appendChild(span);
+  }
+   // ── Eje X: valores de minX (izquierda) a maxX (derecha) ──
+  axisX.innerHTML = '';
+  for (let lx = minX; lx <= maxX; lx++) {
+    const span = document.createElement('span'); // Crear un span para cada etiqueta del eje X
+    span.style.width     = CELL + 'px'; // Ancho igual al tamaño de la celda
+    span.style.textAlign = 'center';
+    if ((lx - minX) % TICK_EVERY === 0 || lx === maxX) { // Mostrar número solo si es múltiplo de TICK_EVERY o el extremo
+      span.textContent = lx;
+    }
+    axisX.appendChild(span); // Agregar el span al contenedor del eje X
+  }
+}

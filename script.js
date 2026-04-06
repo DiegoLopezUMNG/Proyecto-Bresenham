@@ -240,7 +240,20 @@ function buildAxisLabels(minX, maxX, minY, maxY, cols, rows) {
           Cada objeto: { step, x, y, err, adjX, adjY, sx, sy, isLast }
    ============================================================ */
 function buildTable(steps) {
-  const tbody = document.getElementById('stepBody');
+  const tbody = document.getElementById('stepBody'); // Obtener referencia al cuerpo de la tabla
   tbody.innerHTML = '';
   steps.forEach(s => {
-    const tr = document.createElement('tr');
+    const tr = document.createElement('tr'); // Crear una fila para cada paso
+    // Resaltar la última fila (punto final alcanzado)
+    if (s.isLast) tr.classList.add('highlight');
+
+    // Construir texto de observación según los ajustes realizados
+    let obs = `plot(${s.x}, ${s.y})`;
+    if (s.isLast) {
+      obs += ' — Fin';
+    } else {
+      const moves = [];
+      if (s.adjX) moves.push(`x${s.sx > 0 ? '+' : ''}${s.sx}`); // Indicar ajuste en X con dirección
+      if (s.adjY) moves.push(`y${s.sy > 0 ? '+' : ''}${s.sy}`); // Indicar ajuste en Y con dirección
+      if (moves.length) obs += ` → ${moves.join(', ')}`; // Agregar ajustes a la observación
+    }

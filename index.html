@@ -264,4 +264,303 @@
     </div>
   </div>
 
-<script>
+  <script>
+
+/* ============================================================
+   CONSTANTES DE VISUALIZACIÓN
+   ============================================================ */
+const CELL   = 36;   // Tamaño en píxeles de cada celda de la cuadrícula
+const MARGIN = 2;    // Margen en celdas alrededor de los extremos de la línea
+const TICK_EVERY = 2; // Mostrar etiqueta numérica cada N celdas
+
+/* ============================================================
+   FUNCIÓN PRINCIPAL: run()
+   Se invoca al presionar el botón "Trazar".
+   Lee los valores del formulario, ejecuta el algoritmo,
+   dibuja el canvas y genera la tabla de pasos.
+   ============================================================ */
+function run() {
+  // Leer y convertir a entero los valores del formulario
+  const x0 = parseInt(document.getElementById('x0').value);
+  const y0 = parseInt(document.getElementById('y0').value);
+  const x1 = parseInt(document.getElementById('x1').value);
+  const y1 = parseInt(document.getElementById('y1').value);
+
+  // Ejecutar el algoritmo; obtener puntos y registro de pasos
+  const { points, steps } = bresenham(x0, y0, x1, y1);
+
+  // Dibujar la cuadrícula, ejes y píxeles
+  drawCanvas(points, x0, y0, x1, y1);
+
+  // Poblar la tabla de pasos
+  buildTable(steps);
+}
+
+/* ============================================================
+   ALGORITMO DE BRESENHAM
+   Implementación del algoritmo de trazado de línea de Bresenham.
+   @param {number} x0 - Coordenada X inicial.
+   @param {number} y0 - Coordenada Y inicial.
+   @param {number} x1 - Coordenada X final.
+   @param {number} y1 - Coordenada Y final.
+   @returns {{ points: Array<{x,y}>, steps: Array<Object> }}
+            points → lista de píxeles trazados.
+            steps  → lista de objetos con el estado interno en cada iteración.
+   ============================================================ */
+function bresenham(x0, y0, x1, y1) {
+  // Diferenciales absolutos de cada eje
+  let dx = Math.abs(x1 - x0);
+  let dy = Math.abs(y1 - y0);
+
+  // Dirección del paso: +1 o -1 según el sentido de la línea
+  let sx = (x0 < x1) ? 1 : -1;
+  let sy = (y0 < y1) ? 1 : -1;
+
+  // Error inicial: diferencia entre el avance en X y el avance en Y
+  let err = dx - dy;
+
+  const points = []; // Píxeles activados
+  const steps  = []; // Registro para la tabla
+  let stepNum  = 0;
+
+  while (true) {
+    const e2     = 2 * err;
+    const adjX   = e2 > -dy;   // ¿Avanza en X este ciclo?
+    const adjY   = e2 <  dx;   // ¿Avanza en Y este ciclo?
+    const isLast = (x0 === x1 && y0 === y1);
+
+    // Registrar solo los campos necesarios para la tabla simplificada
+    steps.push({ step: stepNum++, x: x0, y: y0, err, adjX, adjY, sx, sy, isLast });
+
+    // Activar el píxel actual
+    points.push({ x: x0, y: y0 });
+
+    // Condición de parada: llegamos al punto final
+    if (isLast) break;
+
+    // ── Ajuste en el eje X ──
+    if (adjX) {
+      err -= dy;
+      x0  += sx;
+    }
+
+    // ── Ajuste en el eje Y ──
+    if (adjY) {
+      err += dx;
+      y0  += sy;
+    }
+  }
+
+  return { points, steps };
+}
+
+/* ============================================================
+   DIBUJO DEL CANVAS
+   Renderiza la cuadrícula con ejes numerados y los píxeles
+   activados por el algoritmo de Bresenham.
+   @param {Array<{x,y}>} points - Píxeles a resaltar.
+   @param {number} x0 - Coordenada X del punto inicial (para marcarlo).
+   @param {number} y0 - Coordenada Y del punto inicial.
+   @param {number} x1 - Coordenada X del punto final.
+   @param {number} y1 - Coordenada Y del punto final.
+   ============================================================ */
+function drawCanvas(points, x0, y0, x1, y1) {
+  const canvas = document.getElementById('grid');
+  const ctx    = canvas.getContext('2d');
+
+  // Calcular el rango visible con margen
+  const minX = Math.min(x0, x1) - MARGIN;
+  const maxX = Math.max(x0, x1) + MARGIN;
+  const minY = Math.min(y0, y1) - MARGIN;
+  const maxY = Math.max(y0, y1) + MARGIN;
+
+  const cols = maxX - minX + 1; // Número de columnas visibles
+  const rows = maxY - minY + 1; // Número de filas visibles
+
+  // Dimensiones del canvas en píxeles
+  const W = cols * CELL;
+  const H = rows * CELL;
+  canvas.width  = W;
+  canvas.height = H;
+
+  // Actualizar variables CSS del wrapper para posicionar los ejes
+  const wrapper = document.getElementById('canvasWrapper');
+  wrapper.style.setProperty('--canvas-w', W + 'px');
+  wrapper.style.setProperty('--canvas-h', H + 'px');
+
+  // Renderizar ejes numéricos en los divs laterales
+  buildAxisLabels(minX, maxX, minY, maxY, cols, rows);
+
+  // ── Fondo ──
+  ctx.fillStyle = getComputedStyle(document.documentElement)
+                   .getPropertyValue('--surface').trim();
+  ctx.fillRect(0, 0, W, H);
+
+  // ── Cuadrícula ──
+  ctx.strokeStyle = 'rgba(48,54,61,0.6)';
+  ctx.lineWidth = 1;
+  for (let c = 0; c <= cols; c++) {
+    ctx.beginPath();
+    ctx.moveTo(c * CELL, 0);
+    ctx.lineTo(c * CELL, H);
+    ctx.stroke();
+  }
+  for (let r = 0; r <= rows; r++) {
+    ctx.beginPath();
+    ctx.moveTo(0, r * CELL);
+    ctx.lineTo(W, r * CELL);
+    ctx.stroke();
+  }
+
+  // ── Píxeles de Bresenham ──
+  // Convertir coordenada lógica (col, row) a píxel en el canvas.
+  // El eje Y está invertido: fila 0 del canvas = maxY lógico.
+  const toCanvasX = lx => (lx - minX) * CELL;
+  const toCanvasY = ly => (maxY - ly) * CELL;
+
+  points.forEach(({ x, y }) => {
+    const cx = toCanvasX(x);
+    const cy = toCanvasY(y);
+
+    // Relleno del píxel activo
+    ctx.fillStyle = 'rgba(88,166,255,0.25)';
+    ctx.fillRect(cx + 1, cy + 1, CELL - 2, CELL - 2);
+
+    // Borde del píxel activo
+    ctx.strokeStyle = '#58a6ff';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(cx + 1, cy + 1, CELL - 2, CELL - 2);
+
+    // Coordenadas dentro de la celda
+    ctx.fillStyle = '#58a6ff';
+    ctx.font = `bold ${Math.max(9, CELL * 0.22)}px 'Share Tech Mono', monospace`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(`${x},${y}`, cx + CELL / 2, cy + CELL / 2);
+  });
+
+  // ── Marcar punto inicial (círculo verde) ──
+  markPoint(ctx, toCanvasX(x0), toCanvasY(y0), '#3fb950', 'P0');
+
+  // ── Marcar punto final (círculo naranja) ──
+  markPoint(ctx, toCanvasX(x1), toCanvasY(y1), '#f0883e', 'P1');
+}
+
+/* ============================================================
+   MARCAR UN PUNTO ESPECIAL EN EL CANVAS
+   Dibuja un pequeño círculo y etiqueta sobre una celda.
+   @param {CanvasRenderingContext2D} ctx - Contexto del canvas.
+   @param {number} cx  - Coordenada X canvas (esquina superior-izquierda de celda).
+   @param {number} cy  - Coordenada Y canvas (esquina superior-izquierda de celda).
+   @param {string} color - Color del marcador.
+   @param {string} label - Texto de la etiqueta (ej. "P0", "P1").
+   ============================================================ */
+function markPoint(ctx, cx, cy, color, label) {
+  const r = CELL * 0.18;
+  const px = cx + CELL / 2;
+  const py = cy + CELL / 2;
+
+  ctx.beginPath();
+  ctx.arc(px, py, r, 0, Math.PI * 2);
+  ctx.fillStyle = color;
+  ctx.fill();
+
+  ctx.fillStyle = '#000';
+  ctx.font = `bold ${Math.max(8, CELL * 0.18)}px 'Barlow', sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(label, px, py);
+}
+
+/* ============================================================
+   CONSTRUIR ETIQUETAS DE EJES
+   Rellena los divs #axisY y #axisX con los valores numéricos
+   correspondientes a cada fila/columna de la cuadrícula.
+   Solo se muestra un número cada TICK_EVERY celdas para no saturar.
+   @param {number} minX, maxX - Rango lógico en X.
+   @param {number} minY, maxY - Rango lógico en Y.
+   @param {number} cols - Número de columnas en el canvas.
+   @param {number} rows - Número de filas en el canvas.
+   ============================================================ */
+function buildAxisLabels(minX, maxX, minY, maxY, cols, rows) {
+  const axisY = document.getElementById('axisY');
+  const axisX = document.getElementById('axisX');
+
+  // Ajustar alturas dinámicamente
+  axisY.style.height = (rows * CELL) + 'px';
+  axisX.style.width  = (cols * CELL) + 'px';
+
+  // ── Eje Y: valores de minY (abajo) a maxY (arriba) ──
+  axisY.innerHTML = '';
+  for (let ly = minY; ly <= maxY; ly++) {
+    const span = document.createElement('span');
+    span.style.height     = CELL + 'px';
+    span.style.lineHeight = CELL + 'px';
+    span.style.display    = 'flex';
+    span.style.alignItems = 'center';
+    span.style.justifyContent = 'flex-end';
+    // Mostrar número solo si es múltiplo de TICK_EVERY o es el borde
+    if ((ly - minY) % TICK_EVERY === 0 || ly === maxY) {
+      span.textContent = ly;
+    }
+    axisY.appendChild(span);
+  }
+
+  // ── Eje X: valores de minX (izquierda) a maxX (derecha) ──
+  axisX.innerHTML = '';
+  for (let lx = minX; lx <= maxX; lx++) {
+    const span = document.createElement('span');
+    span.style.width     = CELL + 'px';
+    span.style.textAlign = 'center';
+    if ((lx - minX) % TICK_EVERY === 0 || lx === maxX) {
+      span.textContent = lx;
+    }
+    axisX.appendChild(span);
+  }
+}
+
+/* ============================================================
+   CONSTRUIR TABLA DE PASOS
+   Genera las filas de la tabla con una vista simplificada:
+   paso, coordenadas actuales, error acumulado y observación
+   sobre qué ajustes se realizaron en esa iteración.
+   @param {Array<Object>} steps - Registros de bresenham().
+          Cada objeto: { step, x, y, err, adjX, adjY, sx, sy, isLast }
+   ============================================================ */
+function buildTable(steps) {
+  const tbody = document.getElementById('stepBody');
+  tbody.innerHTML = '';
+
+  steps.forEach(s => {
+    const tr = document.createElement('tr');
+
+    // Resaltar la última fila (punto final alcanzado)
+    if (s.isLast) tr.classList.add('highlight');
+
+    // Construir texto de observación según los ajustes realizados
+    let obs = `plot(${s.x}, ${s.y})`;
+    if (s.isLast) {
+      obs += ' — Fin';
+    } else {
+      const moves = [];
+      if (s.adjX) moves.push(`x${s.sx > 0 ? '+' : ''}${s.sx}`);
+      if (s.adjY) moves.push(`y${s.sy > 0 ? '+' : ''}${s.sy}`);
+      if (moves.length) obs += ` → ${moves.join(', ')}`;
+    }
+
+    tr.innerHTML = `
+      <td>${s.step}</td>
+      <td>${s.x}</td>
+      <td>${s.y}</td>
+      <td class="err-cell">${s.err}</td>
+      <td class="plot-cell">${obs}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+/* ── Ejecutar al cargar con los valores por defecto ── */
+run();
+</script>
+</body>
+</html>

@@ -269,5 +269,4 @@ function buildTable(steps) {
   });
 }
 
-/* ── Ejecutar al cargar la página con los valores por defecto ── */
-run();
+

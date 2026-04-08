@@ -77,3 +77,17 @@
       color: var(--muted);
       letter-spacing: 0.08em;
     }
+  /* Estilos para los campos de entrada numéricos */
+  input[type="number"] {
+      width: 80px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      color: var(--text);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 1rem;
+      padding: 6px 10px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    input[type="number"]:focus { border-color: var(--accent); }

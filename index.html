@@ -155,3 +155,113 @@
       color: var(--tick-lbl);
       pointer-events: none;
     }
+   /* ── Tabla de pasos ── */
+    .table-section {
+      width: 100%;
+      max-width: 980px;
+    }
+
+    .table-section h2 {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.9rem;
+      color: var(--accent2);
+      margin-bottom: 10px;
+      letter-spacing: 0.06em;
+    }
+
+    .table-scroll {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.8rem;
+    }
+
+    thead tr {
+      background: var(--surface);
+      border-bottom: 2px solid var(--accent);
+    }
+
+    th {
+      padding: 10px 14px;
+      color: var(--accent);
+      text-align: center;
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+ /* Estilos para las filas de la tabla, con alternancia de colores y resaltado */
+    tbody tr { border-bottom: 1px solid var(--border); }
+    tbody tr:last-child { border-bottom: none; }
+
+    tbody tr:nth-child(even) { background: var(--surface); }
+    tbody tr:nth-child(odd)  { background: #0d1117; }
+
+    tbody tr.highlight { background: rgba(88,166,255,0.12) !important; }
+
+    td {
+      padding: 7px 14px;
+      text-align: center;
+      color: var(--text);
+    }
+    td.plot-cell { color: var(--accent2); font-weight: 700; }
+    td.err-cell  { color: #f0883e; }
+ 
+ </style>
+</head>
+<body>
+
+  <h1>Algoritmo de <span>Bresenham</span> — Trazado de Línea</h1>
+
+  <!-- ── Controles de entrada ── -->
+  <div class="controls">
+    <div class="field">
+      <label>X₀</label>
+      <input type="number" id="x0" value="2">
+    </div>
+    <div class="field">
+      <label>Y₀</label>
+      <input type="number" id="y0" value="3">
+    </div>
+    <div class="field">
+      <label>X₁</label>
+      <input type="number" id="x1" value="12">
+    </div>
+    <div class="field">
+      <label>Y₁</label>
+      <input type="number" id="y1" value="8">
+    </div>
+    <button onclick="run()">Trazar</button>
+  </div>
+
+  <!-- ── Canvas + ejes numéricos ── -->
+  <div class="canvas-wrapper" id="canvasWrapper">
+    <div id="axisY"></div>
+    <canvas id="grid"></canvas>
+    <div id="axisX"></div>
+  </div>
+
+  <!-- ── Tabla de pasos ── -->
+  <div class="table-section">
+    <h2>// Tabla de pasos del algoritmo</h2>
+    <div class="table-scroll">
+      <table id="stepTable">
+        <thead>
+          <tr>
+            <th>Paso</th>
+            <th>x</th>
+            <th>y</th>
+            <th>err</th>
+            <th>Observación</th>
+          </tr>
+        </thead>
+        <tbody id="stepBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+<script>

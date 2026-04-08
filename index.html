@@ -107,3 +107,51 @@
       align-self: flex-end;
     }
     button:hover { opacity: .85; }
+    /* ── Canvas wrapper con etiquetas de eje ── */
+    .canvas-wrapper {
+      position: relative;
+      /* El canvas ocupa el interior; dejamos espacio para las etiquetas */
+      padding-left: 44px;   /* ancho del eje Y */
+      padding-bottom: 28px; /* alto del eje X */
+    }
+
+    canvas#grid {
+      display: block;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+    /* Etiquetas del eje Y (izquierda) */
+    #axisY {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 40px;
+      height: var(--canvas-h, 400px); /* se asigna por JS */
+      display: flex;
+      flex-direction: column-reverse; /* 0 abajo, max arriba */
+      justify-content: space-between;
+      align-items: flex-end;
+      padding: 0 4px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--tick-lbl);
+      pointer-events: none;
+    }
+
+    /* Etiquetas del eje X (inferior) */
+    #axisX {
+      position: absolute;
+      bottom: 0;
+      left: 44px;
+      width: var(--canvas-w, 600px); /* se asigna por JS */
+      height: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 2px 0;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--tick-lbl);
+      pointer-events: none;
+    }
